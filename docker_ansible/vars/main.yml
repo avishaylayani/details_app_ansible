@@ -1,0 +1,9 @@
+---
+# vars file for docker_ansible
+POSTGRES_PASSWORD: pgadmin
+POSTGRES_USER: pgadmin
+DBHOST: postgres-container
+DBNAME: postgres
+SECRET_KEY: bKw%TW6XqRaHgTHnQ6*ZCYfwwQY1jG
+POSTGRES_DB: postgres
+APP_VERSION: 0.0.1

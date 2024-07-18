@@ -1,0 +1,12 @@
+---
+# handlers file for docker_ansible
+- name: "run build.sh"
+  command: bash /tmp/docker_compose_files/build.sh
+  become_user: ori
+
+- name: "run docker-compose.yaml"
+  community.docker.docker_compose_v2:
+    project_src: /tmp/docker_compose_files/
+    state: present
+    build: always
+  become_user: ori

@@ -1,0 +1,40 @@
+---
+# tasks file for docker_ansible
+
+- name: Create folder /tmp/docker_compose_files for Docker Compose
+  file: 
+    path: /tmp/docker_compose_files
+    state: directory
+    mode: 777
+  become: true  
+
+- name: change permissions
+  command: 
+    cmd: chmod -R 777 /tmp/docker_compose_files
+  become: true
+
+- name: Copying files
+  copy:
+    src: docker_ansible/files/
+    dest: /tmp/docker_compose_files/
+    remote_src: true
+
+- name: change permissions2
+  command: 
+    cmd: chmod -R 777 /tmp/docker_compose_files/Dockerfile
+  become: true
+
+- name: Deploy build template
+  template:
+    src: docker_ansible/templates/build.j2
+    dest: /tmp/docker_compose_files/build.sh
+    remote_src: true
+    mode: +x
+  notify: "run build.sh"
+
+- name: Deploy Docker Compose template
+  template:
+    src: docker_ansible/templates/docker-compose.j2
+    dest: /tmp/docker_compose_files/docker-compose.yaml
+    remote_src: true
+  notify: "run docker-compose.yaml"
