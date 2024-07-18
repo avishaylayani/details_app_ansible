@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Contact</title>
+</head>
+<body>
+    {% extends "layout.html" %}
+
+    {% block content %}
+        <!-- Background Video -->
+        <video class="bg-video" playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop">
+            <source src="{{ url_for('static', filename='mp4/bg.mp4') }}" type="video/mp4" />
+        </video>
+        <!-- Masthead -->
+        <div class="masthead">
+            <div class="masthead-content text-white">
+                <div class="container-fluid px-4 px-lg-0">
+                    <h1 class="fst-italic lh-1 mb-4">Welcome to App</h1>
+                    <p class="mb-5">Please leave your details below</p>
+                    
+                    <!-- Contacts Count -->
+                    <div class="mb-4">
+                        <h2>Total Contacts: <span id="contactsCount">{{ contactsCount }}</span></h2>
+                    </div>
+
+                    <form id="contactForm" action="/" method="post" role="form">
+                        <div class="col-lg-8 col-lg-offset-2">
+                            {{ form.hidden_tag() }}
+                            <div class="row control-group">
+                                <div class="form-group col-sm-0 floating-label-form-group controls">
+                                    <label>{{ form.name.label }}</label>
+                                    {{ form.name(class_="form-control", id="Name", size=32) }}
+                                </div>
+                            </div>
+                            <div class="row control-group">
+                                <div class="form-group col-sm-0 floating-label-form-group controls">
+                                    <label>{{ form.email.label }}</label>
+                                    {{ form.email(class_="form-control", id="Email", size=32) }}
+                                </div>
+                            </div>
+                            <br>
+                            <div class="form-group col-xs-12">
+                                {{ form.submit(class_="btn btn-outline-warning pull-right btn-sm") }}
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Combo Box for Contacts -->
+                    <div class="mt-4">
+                        <h2>Delete Contact</h2>
+                        <select id="contactList" class="form-control">
+                            {% for contact in contacts %}
+                                <option value="{{ contact.id }}">[{{contact.id}}] {{ contact.name }} - {{ contact.email }}</option>
+                            {% endfor %}
+                        </select>
+                        <button onclick="deleteSelectedContact()" class="btn btn-danger mt-2">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const form = document.getElementById('contactForm');
+                form.addEventListener('submit', async function(event) {
+                    event.preventDefault(); // Prevent the default form submission
+                    const formData = new FormData(form);
+
+                    try {
+                        const response = await fetch('/', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const result = await response.json();
+                        if (response.ok) {
+                            alert('Data was saved successfully.');
+                            // Update the contact count
+                            updateContactCount(1);
+                            // Optionally, reset the form after successful submission
+                            form.reset();
+                        } else {
+                            alert('Failed to save data: ' + result.error);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred while saving data.');
+                    }
+                });
+            });
+
+            async function deleteSelectedContact() {
+                const select = document.getElementById('contactList');
+                const id = select.value;
+                if (id) {
+                    try {
+                        const response = await fetch(`/delete/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const result = await response.json();
+                        if (response.ok) {
+                            alert(result.message);
+                            // Remove the deleted contact from the UI
+                            select.options[select.selectedIndex].remove();
+                            // Update the contact count
+                            updateContactCount(-1);
+                        } else {
+                            alert(result.error);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred while deleting the contact.');
+                    }
+                } else {
+                    alert('Please select a contact to delete.');
+                }
+            }
+
+            function updateContactCount(change) {
+                const countElement = document.getElementById('contactsCount');
+                const currentCount = parseInt(countElement.textContent);
+                countElement.textContent = currentCount + change;
+            }
+        </script>
+    {% endblock %}
+</body>
+</html>
