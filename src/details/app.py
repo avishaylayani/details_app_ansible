@@ -29,7 +29,7 @@ class Contacts(db.Model):
 
 class ConnectionForm(FlaskForm):
     name = StringField('Name', validators=[validators.DataRequired()])
-    email = StringField('Email', validators=[validators.DataRequired(), validators.Email()])
+    email = StringField('Email', validators=[validators.DataRequired()])
     submit = SubmitField('Submit')
 
 
